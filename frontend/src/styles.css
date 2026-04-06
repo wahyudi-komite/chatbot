@@ -1,0 +1,66 @@
+@import "tailwindcss";
+@source "./**/*.{html,ts}";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  background: #f3f8fb;
+  color: #0f172a;
+}
+
+html.dark body {
+  color-scheme: dark;
+}
+
+html:not(.dark) body {
+  color-scheme: light;
+}
+
+@theme {
+  --animate-message: message 0.35s ease-out;
+  --animate-float: float 10s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.8s linear infinite;
+
+  @keyframes message {
+    0% {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-18px);
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+
+    100% {
+      background-position: -20% 0;
+    }
+  }
+}

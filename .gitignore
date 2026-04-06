@@ -1,0 +1,10 @@
+node_modules
+dist
+.angular
+.cache
+coverage
+*.log
+.env
+backend/.env
+frontend/.env
+

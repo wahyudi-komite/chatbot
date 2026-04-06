@@ -1,0 +1,22 @@
+{
+  "database": "business_db",
+  "tables": [
+    {
+      "name": "productions",
+      "columns": [
+        { "name": "id", "type": "int", "nullable": false, "key": "PRI" },
+        { "name": "production_date", "type": "date", "nullable": false, "key": "" },
+        { "name": "quantity", "type": "decimal", "nullable": false, "key": "" }
+      ]
+    },
+    {
+      "name": "inventories",
+      "columns": [
+        { "name": "id", "type": "int", "nullable": false, "key": "PRI" },
+        { "name": "sku", "type": "varchar", "nullable": false, "key": "" },
+        { "name": "stock", "type": "decimal", "nullable": false, "key": "" }
+      ]
+    }
+  ]
+}
+
