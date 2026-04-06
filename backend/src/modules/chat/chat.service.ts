@@ -36,10 +36,22 @@ export class ChatService {
       return cached;
     }
 
+    const greetingResponse = this.tryHandleGreeting(sanitizedMessage);
+    if (greetingResponse) {
+      this.storeCache(sanitizedMessage, greetingResponse);
+      return greetingResponse;
+    }
+
     const schemaSummaryResponse = await this.tryHandleSchemaSummaryQuestion(sanitizedMessage);
     if (schemaSummaryResponse) {
       this.storeCache(sanitizedMessage, schemaSummaryResponse);
       return schemaSummaryResponse;
+    }
+
+    const outOfScopeResponse = this.tryHandleOutOfScopeQuestion(sanitizedMessage);
+    if (outOfScopeResponse) {
+      this.storeCache(sanitizedMessage, outOfScopeResponse);
+      return outOfScopeResponse;
     }
 
     const sql = await this.generateValidatedSql(sanitizedMessage);
@@ -133,6 +145,35 @@ export class ChatService {
     return error.message;
   }
 
+  private tryHandleGreeting(
+    message: string,
+  ): { reply: string; sql?: string; rows?: Record<string, unknown>[] } | null {
+    const normalized = message.toLowerCase();
+    const greetingPatterns = [
+      /^hai\b/,
+      /^halo\b/,
+      /^hello\b/,
+      /^hi\b/,
+      /^selamat pagi\b/,
+      /^selamat siang\b/,
+      /^selamat sore\b/,
+      /^selamat malam\b/,
+      /^pagi\b/,
+      /^siang\b/,
+      /^sore\b/,
+      /^malam\b/,
+    ];
+
+    if (!greetingPatterns.some((pattern) => pattern.test(normalized))) {
+      return null;
+    }
+
+    return {
+      reply:
+        'Selamat datang. Saya siap membantu Anda membaca data dari database. Silakan tanyakan data tabel, jumlah record, tren, atau data terakhir yang ingin Anda lihat.',
+    };
+  }
+
   private async tryHandleSchemaSummaryQuestion(
     message: string,
   ): Promise<{ reply: string; sql?: string; rows?: Record<string, unknown>[] } | null> {
@@ -176,6 +217,32 @@ export class ChatService {
           jumlah_tabel: totalTables,
         },
       ],
+    };
+  }
+
+  private tryHandleOutOfScopeQuestion(
+    message: string,
+  ): { reply: string; sql?: string; rows?: Record<string, unknown>[] } | null {
+    const normalized = message.toLowerCase();
+    const outOfScopePatterns = [
+      /\bpresiden\b/,
+      /\bmenteri\b/,
+      /\bberita\b/,
+      /\bcuaca\b/,
+      /\bsepak bola\b/,
+      /\bfootball\b/,
+      /\bartist\b/,
+      /\bseleb\b/,
+      /\bsiapa\b.*\b(indonesia|presiden|menteri)\b/,
+    ];
+
+    if (!outOfScopePatterns.some((pattern) => pattern.test(normalized))) {
+      return null;
+    }
+
+    return {
+      reply:
+        'Saya fokus membantu analisis data dari database Anda. Untuk pertanyaan umum di luar konteks database, silakan ajukan pertanyaan yang terkait tabel, jumlah data, tren, atau data terbaru yang ingin Anda lihat.',
     };
   }
 }

@@ -1,19 +1,19 @@
-import { inject, Injectable } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, EMPTY, Observable } from 'rxjs';
-import { catchError, finalize, tap } from 'rxjs/operators';
-import { ChatApiService } from './chat-api.service';
-import { ChatMessage } from '../core/models/chat.models';
+import { inject, Injectable } from "@angular/core";
+import { HttpErrorResponse } from "@angular/common/http";
+import { BehaviorSubject, EMPTY, Observable } from "rxjs";
+import { catchError, finalize, tap } from "rxjs/operators";
+import { ChatApiService } from "./chat-api.service";
+import { ChatMessage } from "../core/models/chat.models";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class ChatStateService {
   private readonly chatApi = inject(ChatApiService);
   private readonly messagesSubject = new BehaviorSubject<ChatMessage[]>([
     {
       id: crypto.randomUUID(),
-      role: 'assistant',
+      role: "assistant",
       content:
-        'Halo, saya siap membantu membaca database bisnis Anda. Tanyakan tentang produksi, inventory, trading, atau metrik lain dalam bahasa natural.',
+        "Halo, saya siap membantu membaca database traceability Anda. Tanyakan apapun tentang data traceability.",
       createdAt: new Date().toISOString(),
     },
   ]);
@@ -30,20 +30,24 @@ export class ChatStateService {
 
     const userMessage: ChatMessage = {
       id: crypto.randomUUID(),
-      role: 'user',
+      role: "user",
       content: trimmed,
       createdAt: new Date().toISOString(),
     };
 
     const placeholder: ChatMessage = {
       id: crypto.randomUUID(),
-      role: 'assistant',
-      content: 'Debi sedang berpikir...',
+      role: "assistant",
+      content: "Debi sedang berpikir...",
       createdAt: new Date().toISOString(),
       loading: true,
     };
 
-    this.messagesSubject.next([...this.messagesSubject.value, userMessage, placeholder]);
+    this.messagesSubject.next([
+      ...this.messagesSubject.value,
+      userMessage,
+      placeholder,
+    ]);
     this.loadingSubject.next(true);
 
     return this.chatApi.sendMessage({ message: trimmed }).pipe(
@@ -82,19 +86,19 @@ export class ChatStateService {
   private resolveErrorMessage(error: unknown): string {
     if (error instanceof HttpErrorResponse) {
       const backendMessage = error.error?.message;
-      if (typeof backendMessage === 'string' && backendMessage.trim()) {
+      if (typeof backendMessage === "string" && backendMessage.trim()) {
         return backendMessage;
       }
 
       if (Array.isArray(backendMessage) && backendMessage.length > 0) {
-        return backendMessage.join(', ');
+        return backendMessage.join(", ");
       }
 
       if (error.status === 0) {
-        return 'Frontend tidak dapat terhubung ke backend API.';
+        return "Frontend tidak dapat terhubung ke backend API.";
       }
     }
 
-    return 'Terjadi kendala saat memproses permintaan. Periksa koneksi backend, Ollama, dan database.';
+    return "Terjadi kendala saat memproses permintaan. Periksa koneksi backend, Ollama, dan database.";
   }
 }
